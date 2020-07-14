@@ -3,11 +3,13 @@ set -e
 
 
 # MM TODO: update this list
-# Packages already in base 20.04 image that are utilized by RIAPS Components:
-# GCC 7, G++ 7, GIT, pkg-config, python3-dev, python3-setuptools
-# pps-tools, libpcap0.8, nettle6, libgnutls30, libncurses5
+# Packages already in base 18.04.4 image that are utilized by RIAPS Components:
+# git, libpcap0.8, nettle6, libncurses5, curl, libuuid1, liblz4-1, libgnutls30
+# vim, htop, software-properties-common
 
-# MM TODO: may need to do the following:
+# MM TODO: Packages to add
+# GCC 7, G++ 7, GIT, pkg-config, python3-dev, python3-setuptools
+# pps-tools,  libgnutls30,
 
 
 # Script Variables
@@ -55,21 +57,12 @@ rdate_install() {
     echo "installed rdate"
 }
 
-vim_func() {
-    sudo apt-get install vim -y
-    echo "installed vim"
-}
-
 cmake_func() {
     sudo apt-get install cmake -y
     sudo apt-get install byacc flex libtool libtool-bin -y
     sudo apt-get install autoconf autogen -y
     sudo apt-get install libreadline-dev -y
     echo "installed cmake"
-}
-
-htop_install() {
-    sudo apt-get install htop -y
 }
 
 timesync_requirements() {
@@ -81,6 +74,7 @@ timesync_requirements() {
 }
 
 freqgov_off() {
+    sudo apt-get install cpufrequtils -y
     touch /etc/default/cpufrequtils
     echo "GOVERNOR=\"performance\"" | tee -a /etc/default/cpufrequtils
     sudo systemctl disable ondemand
@@ -100,11 +94,6 @@ cython_install() {
     echo "installed cython"
 }
 
-curl_func() {
-    sudo apt install curl -y
-    echo "installed curl"
-}
-
 boost_install() {
     sudo apt-get install libboost-all-dev -y
     echo "installed boost"
@@ -120,7 +109,6 @@ nethogs_prereq_install() {
 zyre_czmq_prereq_install() {
     sudo apt-get install libzmq5 libzmq3-dev -y
     sudo apt-get install libsystemd-dev -y
-    sudo apt-get install libuuid1 liblz4-1 -y
     sudo apt-get install pkg-config -y
     echo "installed CZMQ and Zyre prerequisites"
 }
@@ -137,7 +125,7 @@ watchdog_timers() {
 
 quota_install() {
     sudo apt-get install quota -y
-    sed -i "/mmcblk0p1/c\/dev/mmcblk0p1 / ext4 noatime,errors=remount-ro,usrquota,grpquota 0 1" /etc/fstab
+    sed -i "/LABEL=writable/c\LABEL=writable / ext4 defaults,usrquota,grpquota 0 0" /etc/fstab
     echo "setup quotas"
 }
 
@@ -150,15 +138,15 @@ splash_screen_update() {
     echo "# those of the United States Government or any agency thereof.                 #" >> motd
     echo "################################################################################" >> motd
     sudo mv motd /etc/motd
+# MM TODO: update when realtime build is complete - for now comment out
     # Issue.net
-    echo "Ubuntu 18.04.1 LTS" > issue.net
-    echo "" >> issue.net
-    echo "rcn-ee.net console Ubuntu Image 2018-09-11">> issue.net
-    echo "">> issue.net
-    echo "Support/FAQ: http://elinux.org/BeagleBoardUbuntu">> issue.net
-    echo "">> issue.net
-    echo "default username:password is [riaps:riaps]">> issue.net
-    sudo mv issue.net /etc/issue.net
+#    echo "Ubuntu 18.04.4 LTS" > issue.net
+#    echo "" >> issue.net
+#    echo "rcn-ee.net console Ubuntu Image 2018-09-11">> issue.net
+#    echo "">> issue.net
+#    echo "Support/FAQ: http://elinux.org/BeagleBoardUbuntu">> issue.net
+#    echo "">> issue.net
+#    sudo mv issue.net /etc/issue.net
     echo "setup splash screen"
 }
 
@@ -176,6 +164,7 @@ setup_peripherals() {
 }
 
 setup_network() {
+    sudo apt-get install net-tools -y
     echo "replacing network/interfaces with network/interfaces-riaps"
     echo "copying old network/interfaces to network/interfaces.preriaps"
     touch /etc/network/interfaces
@@ -195,7 +184,8 @@ security_pkg_install() {
     echo "add security packages"
     sudo pip3 install 'paramiko==2.6.0' 'cryptography==2.7' --verbose
     sudo apt-get install apparmor-utils -y
-    sudo apt-get remove python3-crypto python3-keyrings.alt -y
+# does not exist in RPi default setup
+#    sudo apt-get remove python3-crypto python3-keyrings.alt -y
     echo "security packages setup"
 }
 
@@ -207,18 +197,6 @@ setup_ssh_keys() {
     chmod 600 /home/$1/.ssh/authorized_keys
     chown -R $1:$1 /home/$1/.ssh
     echo "Added unsecured public key to authorized keys for $1"
-}
-
-# MM TODO: update
-# Create a swap file to allow spdlog-python to compile using swap
-# http://manpages.ubuntu.com/manpages/focal/man8/dphys-swapfile.8.html
-add_swapfile() {
-    sudo fallocate -l 1G /swapfile
-    sudo dd if=/dev/zero of=/swapfile bs=1024 count=1048576
-    sudo chmod 600 /swapfile
-    sudo mkswap /swapfile
-    sudo swapon /swapfile
-    echo "/swapfile swap swap defaults 0 0" >> /etc/fstab
 }
 
 spdlog_install() {
@@ -246,7 +224,7 @@ apparmor_monkeys_install() {
 
 # install gnutls
 gnutls_install(){
-    sudo apt-get install libgnutls30 libgnutls28-dev -y
+    sudo apt-get install libgnutls28-dev -y
     echo "installed gnutls"
 }
 
@@ -262,7 +240,7 @@ opendht_prereqs_install() {
     sudo apt-get install nettle-dev -y
     # run liblinks script to link gnutls and msgppack
     chmod +x /home/ubuntu/bbb-creation-files/liblinks.sh
-    cd /usr/lib/arm-linux-gnueabihf
+    cd /usr/lib/aarch64-linux-gnu
     sudo /home/ubuntu/bbb-creation-files/liblinks.sh
     echo "installed opendht prerequisites"
 }
@@ -327,7 +305,7 @@ pycapnp_install() {
 
 #install other required packages
 other_pip3_installs(){
-    pip3 install 'Adafruit_BBIO == 1.1.1' 'pydevd==1.8.0' 'rpyc==4.1.0' 'redis==2.10.6' 'hiredis == 0.2.0' 'netifaces==0.10.7' 'paramiko==2.6.0' 'cryptography==2.7' 'cgroups==0.1.0' 'cgroupspy==0.1.6' 'psutil==5.7.0' 'butter==0.12.6' 'lmdb==0.94' 'fabric3==1.14.post1' 'pyroute2==0.5.2' 'minimalmodbus==0.7' 'pyserial==3.4' 'pybind11==2.2.4' 'toml==0.10.0' 'pycryptodomex==3.7.3' --verbose
+    pip3 install 'pydevd==1.8.0' 'rpyc==4.1.0' 'redis==2.10.6' 'hiredis == 0.2.0' 'netifaces==0.10.7' 'paramiko==2.6.0' 'cryptography==2.7' 'cgroups==0.1.0' 'cgroupspy==0.1.6' 'psutil==5.7.0' 'butter==0.12.6' 'lmdb==0.94' 'fabric3==1.14.post1' 'pyroute2==0.5.2' 'minimalmodbus==0.7' 'pyserial==3.4' 'pybind11==2.2.4' 'toml==0.10.0' 'pycryptodomex==3.7.3' --verbose
     pip3 install --ignore-installed 'PyYAML==5.1.1'
     echo "installed pip3 packages"
 }
@@ -349,7 +327,7 @@ remove_pkgs_used_to_build(){
 }
 
 setup_riaps_repo() {
-    sudo apt-get install software-properties-common apt-transport-https -y
+    sudo apt-get install apt-transport-https -y
 
     # Add RIAPS repository
     echo "get riaps public key"
@@ -363,17 +341,15 @@ setup_riaps_repo() {
 
 # Start of script actions
 check_os_version
-rt_kernel_install
+#rt_kernel_install  -- MM TODO: in work
+setup_peripherals
 user_func
 rdate_install
-vim_func
 cmake_func
-htop_install
 timesync_requirements
 freqgov_off
 python_install
 cython_install
-curl_func
 boost_install
 nethogs_prereq_install
 zyre_czmq_prereq_install
@@ -381,13 +357,9 @@ watchdog_timers
 quota_install $RIAPSAPPDEVELOPER
 splash_screen_update
 setup_hostname
-setup_peripherals
 setup_network
 security_pkg_install
 setup_ssh_keys $RIAPSAPPDEVELOPER
-# Swapfile needs to be done before running this script or
-# installs like spdlog will not run
-#add_swapfile
 spdlog_install
 apparmor_monkeys_install
 gnutls_install
@@ -399,6 +371,6 @@ czmq_pybindings_install
 zyre_pybindings_install
 pycapnp_install
 other_pip3_installs
-prctl_install
+#prctl_install  -- Planned for next release
 remove_pkgs_used_to_build
 setup_riaps_repo

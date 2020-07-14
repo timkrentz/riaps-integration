@@ -171,10 +171,10 @@ externalproject_add(zyre
                      --disable-tools
                      --disable-python
                      --enable-indexation
-                     #GnuTLS_LIBS="-L/usr/lib/arm-linux-gnueabihf -lgnutls"
-                     #GnuTLS_CFLAGS=-I/usr/include/arm-linux-gnueabihf
-                     MsgPack_LIBS="-L/usr/lib/arm-linux-gnueabihf -lmsgpackc"
-                     MsgPack_CFLAGS=-I/usr/include/arm-linux-gnueabihf
+                     #GnuTLS_LIBS="-L/usr/lib/aarch64-linux-gnu -lgnutls"
+                     #GnuTLS_CFLAGS=-I/usr/include/aarch64-linux-gnu
+                     MsgPack_LIBS="-L/usr/lib/aarch64-linux-gnu -lmsgpackc"
+                     MsgPack_CFLAGS=-I/usr/include/aarch64-linux-gnu
                      CFLAGS=-I/tmp/3rdparty/opendht/argon2/include
                      BUILD_COMMAND
                      make
