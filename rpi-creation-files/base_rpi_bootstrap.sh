@@ -239,8 +239,10 @@ opendht_prereqs_install() {
     sudo apt-get install nettle-dev -y
     # run liblinks script to link gnutls and msgppack
     chmod +x /home/ubuntu/riaps-integration/rpi-creation-files/liblinks.sh
+    PREVIOUS_PWD=$PWD
     cd /usr/lib/aarch64-linux-gnu
     sudo /home/ubuntu/riaps-integration/rpi-creation-files/liblinks.sh
+    cd $PREVIOUS_PWD
     echo "installed opendht prerequisites"
 }
 
@@ -370,6 +372,6 @@ pyzmq_install
 czmq_pybindings_install
 zyre_pybindings_install
 pycapnp_install
-prctl_install  
+#prctl_install
 remove_pkgs_used_to_build
 setup_riaps_repo
