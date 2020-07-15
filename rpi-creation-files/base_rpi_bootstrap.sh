@@ -192,11 +192,11 @@ security_pkg_install() {
 # This function requires that bbb_initial.pub from https://github.com/RIAPS/riaps-integration/blob/master/riaps-x86runtime/bbb_initial_keys/id_rsa.pub
 # be placed on the bbb as this script is run
 setup_ssh_keys() {
-    sudo -H -u $1 mkdir -p /home/$1/.ssh
-    cat bbb_initial_keys/bbb_initial.pub /home/$1/.ssh/authorized_keys
-    chmod 600 /home/$1/.ssh/authorized_keys
-    chown -R $1:$1 /home/$1/.ssh
-    echo "Added unsecured public key to authorized keys for $1"
+    sudo -H -u $RIAPSAPPDEVELOPER mkdir -p /home/$RIAPSAPPDEVELOPER/.ssh
+    sudo -H -u $RIAPSAPPDEVELOPER cat bbb_initial_keys/bbb_initial.pub >> /home/$RIAPSAPPDEVELOPER/.ssh/authorized_keys
+    chmod 600 /home/$RIAPSAPPDEVELOPER/.ssh/authorized_keys
+    chown -R $RIAPSAPPDEVELOPER:$RIAPSAPPDEVELOPER /home/$RIAPSAPPDEVELOPER/.ssh
+    echo "Added unsecured public key to authorized keys for $RIAPSAPPDEVELOPER"
 }
 
 spdlog_install() {
@@ -234,14 +234,13 @@ msgpack_install(){
     echo "installed msgpack"
 }
 
-#install opendht prerequisites
+#install opendht prerequisites - expect libncurses5-dev installed
 opendht_prereqs_install() {
-    sudo apt-get install libncurses5-dev -y
     sudo apt-get install nettle-dev -y
     # run liblinks script to link gnutls and msgppack
-    chmod +x /home/ubuntu/bbb-creation-files/liblinks.sh
+    chmod +x /home/ubuntu/riaps-integration/rpi-creation-files/liblinks.sh
     cd /usr/lib/aarch64-linux-gnu
-    sudo /home/ubuntu/bbb-creation-files/liblinks.sh
+    sudo /home/ubuntu/riaps-integration/rpi-creation-files/liblinks.sh
     echo "installed opendht prerequisites"
 }
 
@@ -360,6 +359,7 @@ setup_hostname
 setup_network
 security_pkg_install
 setup_ssh_keys $RIAPSAPPDEVELOPER
+other_pip3_installs
 spdlog_install
 apparmor_monkeys_install
 gnutls_install
@@ -370,7 +370,6 @@ pyzmq_install
 czmq_pybindings_install
 zyre_pybindings_install
 pycapnp_install
-other_pip3_installs
-#prctl_install  -- Planned for next release
+prctl_install  
 remove_pkgs_used_to_build
 setup_riaps_repo

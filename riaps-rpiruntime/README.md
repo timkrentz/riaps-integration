@@ -1,18 +1,18 @@
-# Setting up the BBB images
+# THIS PAGE IS IN DEVELOPMENT
 
-1) Download the latest BBB image (riaps_bbb_4GB_v[date].tar.gz) from
+# Setting up the RPi images
+
+1) Download the latest RPi image (riaps_rpi_4GB_v[date].tar.gz) from
    https://riaps.isis.vanderbilt.edu/downloads/. Choose the latest date folder.
 
-2) Copy the image to the BBB SD Card using a host machine and an SD Card reader.  
+2) Copy the image to the RPi SD Card using a host machine and an SD Card reader.  
    A good open source tool for transferring the image to a SD Card is https://etcher.io/.
 
-3) Put the SD Card into the BBB and boot it up.  
-
->Note:  newer BBBs should be set to boot to the SD card automatically, when present.
+3) Put the SD Card into the RPi and boot it up.  
 
 4) Log into the "riaps" account on the BBB.
 
- You can ssh into the BBBs using the following:
+ You can ssh into the RPi using the following:
 
     Username:  riaps
     Password:  riaps
@@ -20,13 +20,14 @@
 ```
 ssh -i /home/riaps/.ssh/id_rsa.key riaps@XXX.XXX.XXX.XXX
 ```
->  where **xxx&#46;xxx&#46;xxx&#46;xxx** is the IP address of the BBB
+>  where **xxx&#46;xxx&#46;xxx&#46;xxx** is the IP address of the RPi
 
 5) Starting with v1.1.17, the BBB image does not have RIAPS pre-installed.  So,
    install the RIAPS platform using
 
-```./riaps_install_bbb.sh 2>&1 | tee install-riaps-bbb.log```
+```./riaps_install_rpi.sh 2>&1 | tee install-riaps-rpi.log```
 
+# MM TODO: need to update securing keys
 6) Optional Step:  If desired, secure communication between the Host Environment
    and the BBBs by following the [Securing Communication Between the VM and BBBs](../riaps-x86runtime/README.md#secure-comm)
    instructions.  Once this process completes, the host environment will automatically
@@ -36,11 +37,11 @@ ssh -i /home/riaps/.ssh/id_rsa.key riaps@XXX.XXX.XXX.XXX
 > Note:  First time users should skip this step on first setup of their system.  
   The RIAPS example programs will work with the initial security configuration.
 
-7) Reboot the BBBs
+7) Reboot the RPis
 
-# Update RIAPS Platform Packages on Existing BBBs
+# Update RIAPS Platform Packages on Existing RPis
 
-1) Download the [RIAPS update script](riaps_install_bbb.sh) to the BBB.
+1) Download the [RIAPS update script](riaps_install_rpi.sh) to the RPi.
 
 2) Stop the riaps_deplo service by running the kill script.
 
@@ -51,7 +52,7 @@ sudo systemctl stop riaps-deplo.service
 3) Run the update script.
 
 ```
-./riaps_install_bbb.sh 2>&1 | tee install-riaps-update-bbb.log
+./riaps_install_rpi.sh 2>&1 | tee install-riaps-update-rpi.log
 ```
 
 > Note:  The user configuration files (riaps.conf and riaps-log.conf) are preserved
@@ -60,9 +61,6 @@ sudo systemctl stop riaps-deplo.service
   reinstall riaps-pycom.  Also, all files are linked such that pycom can still load
   these files from /usr/local/riaps/etc/, so no change in code is required.
 
-> Note for v1.1.16 users:  The platform move from RIAPS v1.1.15 or RIAPS v1.1.16 are
-  breaking builds,  in step 3 use the ```riaps_update_bbb_v1_1_16.sh``` script to
-  make sure deprecated packages and old configuration files are removed.
 
 # Helpful Hints
 
@@ -110,7 +108,7 @@ manually on a command line, where name is the service name (like deplo).  Starti
 a service runs the actions immediately.  Enabling the service will allow the service
 to start when booting up.  Disabling a service will completely turn the service
 off (even when rebooted).  Stopping a service will just stop the service for the
-current boot of the BBB, it will be back on after the next reboot, unless it is disabled.
+current boot of the RPi, it will be back on after the next reboot, unless it is disabled.
 
 ```
 sudo systemctl status riaps-<name>.service
